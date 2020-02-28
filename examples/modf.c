@@ -32,18 +32,43 @@ length: number of elements in the array
 returns: new array, caller must free
 */
 // TODO: Write this function
+double *get_int_part(double array[], int length) {
+    int *int_part = malloc(length * sizeof(int));
+
+    for (int i = 0; i < length; i++) {
+        int_part[i] = (int) array[i];
+    }
+    return int_part;
+}
+
+double *get_both_parts(double array[], int length, double *frac_part) {
+    int *int_part = malloc(length * sizeof(int));
+    
+    for (int i = 0; i < length; i++) {
+        result[i] = (int) array[i];
+        *frac_part[i] = array[i] - result[i];
+    }
+    return result;
+}
 
 void test_get_int_part()
 {
     double array[] = {1.2, 2.718, 3.1412, 5.6};
     double expected[] = {1, 2, 3, 5};
+    double expected2[] = {.2, .718, .1412, .6};
+    double frac_part = malloc(length * sizeof(double));
     int length = sizeof(array) / sizeof(double);
 
     double *int_part = get_int_part(array, length);
-
+    double *int_part2 = get_both_parts(array, length, &frac_part);
     for (int i=0; i<length; i++) {
         //printf("%lf\n", result[i]);
         assert(int_part[i] == expected[i]);
+    }
+
+    for (int i=0; i<length; i++) {
+        //printf("%lf\n", result[i]);
+        assert(int_part2[i] == expected2[i]);
     }
 }
 
