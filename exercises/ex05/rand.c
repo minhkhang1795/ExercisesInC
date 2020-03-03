@@ -5,6 +5,7 @@ License: MIT License https://opensource.org/licenses/MIT
 */
 
 #include <stdlib.h>
+#include <stdio.h>
 
 // generate a random float using the algorithm described
 // at http://allendowney.com/research/rand
@@ -76,9 +77,54 @@ float my_random_float2()
 }
 
 // compute a random double using my algorithm
+// Please use test3.c to test this function
 double my_random_double()
 {
     // TODO: fill this in
+    long long exp, x, mask, mant;
+
+    mask = 1;
+    exp = 1022;
+    // this union is for assembling the double.
+    union {
+        double f;
+        long long i;
+    } b;
+
+    // generate 63 random bits
+    x = (random() << 32) | random();
+
+    // use bit-scan-forward to find the first set bit and
+    // compute the exponent
+    asm ("bsf %1, %0"
+    :"=r"(exp)
+    :"r"(x)
+    );
+    exp = 1022 - exp;
+
+    // This also works but is slower.
+    // generate random bits until we see the first set bit
+    // while (1) {
+    //     x = (random() << 32) | random();
+    //     if (x == 0) {
+    //         exp -= 63;
+    //     } else {
+    //         break;
+    //     }
+    // }
+
+    // find the location of the first set bit and compute the exponent
+    // while (x & mask) {
+    //     mask <<= 1;
+    //     exp--;
+    // }
+
+    // use the other 52 bits for the mantissa (for small numbers
+    // this means we are re-using some bits)
+    mant = x >> 11;
+    b.i = (exp << 52) | mant;
+
+    return b.f;
 }
 
 // return a constant (this is a dummy function for time trials)
@@ -114,7 +160,7 @@ float random_float()
 
 
 // generate a random double using the standard algorithm
-float random_double()
+double random_double()
 {
     int x;
     double f;
