@@ -108,7 +108,11 @@ returns: >0 if a > b
 */
 int compare_nodes(const void* a, const void* b) {
     // FILL THIS IN!
-    return 0;
+    Node **node_a = (Node**) a;
+    Node **node_b = (Node**) b;
+    int val_a = (*node_a)->val;
+    int val_b = (*node_b)->val;
+    return val_a - val_b;
 }
 
 int main() {
