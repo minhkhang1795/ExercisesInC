@@ -13,12 +13,17 @@ License: MIT License https://opensource.org/licenses/MIT
 #include <sys/time.h>
 #include <sys/types.h>
 #include <wait.h>
-
+/**
+* Even though parent and children processes have the same addresses for global,
+* heap and stack variables, they don't share the same global, heap and stack
+* segments.
+*
+*/
 
 // errno is an external global variable that contains
 // error information
 extern int errno;
-
+int global;
 
 // get_seconds returns the number of seconds since the
 // beginning of the day, with microsecond precision
@@ -45,7 +50,11 @@ int main(int argc, char *argv[])
     pid_t pid;
     double start, stop;
     int i, num_children;
-
+    int *heap = malloc(sizeof(int) * 1);
+    int stack;
+    global = 100;
+    heap[0] = 200;
+    stack = 300;
     // the first command-line argument is the name of the executable.
     // if there is a second, it is the number of children to create.
     if (argc == 2) {
@@ -73,13 +82,24 @@ int main(int argc, char *argv[])
         /* see if we're the parent or the child */
         if (pid == 0) {
             child_code(i);
+            // global++;
+            // heap[0]++;
+            // stack++;
+            printf("--Global int: %d. Global address: %p\n", global, &global);
+            printf("--Heap int: %d. Heap address: %p\n", heap[0], &heap);
+            printf("--Stack int: %d. Stack address: %p\n", stack, &stack);
             exit(i);
         }
     }
 
     /* parent continues */
     printf("Hello from the parent.\n");
-
+    global++;
+    heap++;
+    stack++;
+    printf("++Global int: %d. Global address: %p\n", global, &global);
+    printf("++Heap int: %d. Heap address: %p\n", heap[0], &heap);
+    printf("++Stack int: %d. Stack address: %p\n", stack, &stack);
     for (i=0; i<num_children; i++) {
         pid = wait(&status);
 
